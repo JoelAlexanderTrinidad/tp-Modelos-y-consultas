@@ -1,32 +1,47 @@
 module.exports = (sequelize, dataTypes) => {
-    let alias = 'Movie';
-    let cols = {
+
+    const alias = 'Movie';
+
+    const cols = {
         id: {
-            type: dataTypes.INTEGER,
+            type: dataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            allowNull: false,
             primaryKey: true,
-            autoIncrement: true
         },
         title: {
-            type: dataTypes.STRING
+            type: dataTypes.STRING(50),
+            allowNull: false,
         },
         rating: {
-            type: dataTypes.INTEGER
-        },
-        length: {
-            type: dataTypes.INTEGER
+            type: dataTypes.DECIMAL(3,1).UNSIGNED,
+            allowNull: false,
         },
         awards: {
-            type: dataTypes.INTEGER
+            type: dataTypes.INTEGER.UNSIGNED, 
+            allowNull: false,
+            defaultValue: 0,
         },
         release_date: {
-            type: dataTypes.DATE
+            type: dataTypes.DATE,
+            allowNull: false,
+        },
+        length: {
+            type: dataTypes.INTEGER,
+            allowNull: true,
+        },
+        genre_id: {
+            type: dataTypes.INTEGER,
+            allowNull: true,
         }
     };
-    let config = {
-        tableName: 'movies',
-        timestamps: false
-    };
-    const Movie = sequelize.define(alias, cols, config)
 
-    return Movie
+    const config = {
+        tableName: 'movies',
+        timestamps: false		
+    }
+    
+    const Movie = sequelize.define(alias, cols, config);
+
+    return Movie;
 }

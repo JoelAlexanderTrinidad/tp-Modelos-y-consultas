@@ -1,65 +1,55 @@
-const db = require('../database/models');
-const sequelize = db.sequelize;
+const db = require('../database/models/index');
+const {Op} = require('sequelize');
 
-//Otra forma de llamar a los modelos
-const Movies = db.Movie;
-
-const moviesController = {
-    'list': (req, res) => {
-        db.Movie.findAll()
-            .then(movies => {
-                res.render('moviesList.ejs', {movies})
+ module.exports = {
+    list: (req, res) => {
+        db.Movie.findAll() // esto es una promesa por eso el then
+            .then(movies =>{
+                return res.render('moviesList',{movies}) // cuando tengas las pelis retornalas 
             })
+            .catch(error => console.log(error)) // si hay un error
     },
-    'detail': (req, res) => {
-        db.Movie.findByPk(req.params.id)
-            .then(movie => {
-                res.render('moviesDetail.ejs', {movie});
-            });
+    detail: (req, res) => {
+        db.Movie.findByPk(req.params.id) // findByPk recibe como parámetro el id
+            .then(movie => { // este puede ser cualquier nombre, pero depende de cómo lo esté pidiendo la vista
+                return res.render('moviesDetail',{
+                    movie // y acá se manda hacia la vista
+                })
+            })
+            .catch(error => console.log(error))
     },
-    'new': (req, res) => {
+    new: (req, res) => {
         db.Movie.findAll({
-            order : [
-                ['release_date', 'DESC']
+            order:[
+                ['release_date','DESC']
             ],
             limit: 5
         })
-            .then(movies => {
-                res.render('newestMovies', {movies});
-            });
+            .then(movies => res.render('newestMovies',{movies}))
+            .catch(error => console.log(error))
     },
-    'recomended': (req, res) => {
+    recomended: (req, res) => {
         db.Movie.findAll({
             where: {
-                rating: {[db.Sequelize.Op.gte] : 8}
+                [Op.and]:[
+                    {
+                        rating: {
+                            [Op.gte] : 8
+                        }
+                    },
+                    {
+                        awards: {
+                            [Op.gte]: 2
+                        }
+                    }
+                ]
             },
-            order: [
-                ['rating', 'DESC']
+            order:[
+                ['rating', 'DESC'],
+                ['awards', 'DESC'],
             ]
         })
-            .then(movies => {
-                res.render('recommendedMovies.ejs', {movies});
-            });
-    }, //Aqui debemos modificar y completar lo necesario para trabajar con el CRUD
-    add: function (req, res) {
-        // TODO   
-    },
-    create: function (req, res) {
-        // TODO
-    },
-    edit: function(req, res) {
-        // TODO
-    },
-    update: function (req,res) {
-        // TODO
-    },
-    delete: function (req, res) {
-        // TODO
-    },
-    destroy: function (req, res) {
-        // TODO
-    }
-
+        .then(movies => res.render('recommendedMovies', {movies}))
+        .catch(error => console.log(error))
+    }       
 }
-
-module.exports = moviesController;
